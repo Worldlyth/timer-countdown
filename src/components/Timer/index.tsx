@@ -3,36 +3,46 @@ import { Button } from '@mui/material';
 import styled from 'styled-components';
 import Time from './components/Time';
 
-interface IindexProps {}
+interface ITimerProps {}
 
-export type ActionType = 'Запустить' | 'Пауза' | 'Возобновить';
+type ActionType = 'Запустить' | 'Пауза' | 'Возобновить';
+export type StatusType = 'initial' | 'started' | 'paused';
+interface ITimerState {
+    action: ActionType;
+    status: StatusType;
+}
 
-const Timer: React.FC<IindexProps> = props => {
-    const [action, setAction] = useState<ActionType>('Запустить');
+const Timer: React.FC<ITimerProps> = () => {
+    const [timerState, setTimerState] = useState<ITimerState>({
+        action: 'Запустить',
+        status: 'initial',
+    });
 
     const changeAction = useCallback(() => {
-        switch (action) {
+        switch (timerState.action) {
             case 'Запустить':
-                return setAction('Пауза');
+                return setTimerState({ ...timerState, action: 'Пауза', status: 'started' });
             case 'Пауза':
-                return setAction('Возобновить');
+                return setTimerState({ ...timerState, action: 'Возобновить', status: 'paused' });
             case 'Возобновить':
-                return setAction('Пауза');
+                return setTimerState({ ...timerState, action: 'Пауза', status: 'started' });
         }
-    }, [action]);
+    }, [timerState]);
 
     const reset = () => {
-        setAction('Запустить');
+        setTimerState({ ...timerState, action: 'Запустить', status: 'initial' });
     };
+
+    const isResetButtonDisabled = timerState.status === 'initial';
 
     return (
         <TimerContainer>
             <Heading>Timer</Heading>
-            <Time action={action} />
+            <Time status={timerState.status} />
             <Button onClick={changeAction} color='inherit' variant='contained'>
-                {action}
+                {timerState.action}
             </Button>
-            <Button onClick={reset} color='inherit' variant='contained' disabled={action === 'Запустить'}>
+            <Button onClick={reset} color='inherit' variant='contained' disabled={isResetButtonDisabled}>
                 Сбросить
             </Button>
         </TimerContainer>

@@ -1,13 +1,13 @@
 import React, { memo, useCallback, useEffect, useState } from 'react';
 import styled from 'styled-components';
-import { ActionType } from '..';
+import { StatusType } from '..';
 
 interface ITimeProps {
-    action: ActionType;
+    status: StatusType;
 }
 
 const Time: React.FC<ITimeProps> = props => {
-    const { action } = props;
+    const { status } = props;
     const [time, setTime] = useState<number>(0);
 
     const start = () => {
@@ -16,13 +16,13 @@ const Time: React.FC<ITimeProps> = props => {
     };
 
     useEffect(() => {
-        switch (action) {
-            case 'Запустить':
+        switch (status) {
+            case 'initial':
                 return setTime(0);
-            case 'Пауза':
+            case 'started':
                 return start();
         }
-    }, [action]);
+    }, [status]);
 
     const formatTime = useCallback((time: number) => {
         const minutes = Math.floor(time / 6000);
