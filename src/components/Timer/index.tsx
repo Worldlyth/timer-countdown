@@ -1,7 +1,8 @@
 import React, { memo, useCallback, useState } from 'react';
 import { Button } from '@mui/material';
-import styled from 'styled-components';
 import Time from './components/Time';
+import { SHeading } from '../../assets/styles/app.styles';
+import { STimer } from '../../assets/styles/Timer';
 
 interface ITimerProps {}
 
@@ -36,8 +37,8 @@ const Timer: React.FC<ITimerProps> = () => {
     const isResetButtonDisabled = timerState.status === 'initial';
 
     return (
-        <TimerContainer>
-            <Heading>Timer</Heading>
+        <STimer>
+            <SHeading>Timer</SHeading>
             <Time status={timerState.status} />
             <Button onClick={changeAction} color='inherit' variant='contained'>
                 {timerState.action}
@@ -45,21 +46,8 @@ const Timer: React.FC<ITimerProps> = () => {
             <Button onClick={reset} color='inherit' variant='contained' disabled={isResetButtonDisabled}>
                 Сбросить
             </Button>
-        </TimerContainer>
+        </STimer>
     );
 };
 
 export default memo(Timer);
-
-const TimerContainer = styled.div`
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-`;
-
-const Heading = styled.div`
-    color: #344e41;
-    font-family: 'Orbitron', sans-serif;
-    font-size: 60px;
-    text-align: left;
-`;
