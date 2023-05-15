@@ -1,51 +1,23 @@
-import React, { useMemo, useState } from 'react';
-import { SInput, SInputsWrapper } from '../../../assets/styles/Countdown';
-import { createTheme, Slider, ThemeProvider } from '@mui/material';
+import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import { SInput, STimeInputsWrapper, SInputContainer } from '../../../assets/styles/Countdown';
+import { Slider } from '@mui/material';
+import { StatusType } from '..';
 
-interface ITimeInputProps {}
-
-interface ITime {
-    minutes: number | string;
-    seconds: number | string;
+interface ITimeInputProps {
+    setTime: (value: number) => void;
+    status: StatusType;
+    setMaxValue: (value: number) => void;
 }
 
 const TimeInput: React.FC<ITimeInputProps> = props => {
-    const [time, setTime] = useState<ITime>({
-        minutes: '',
-        seconds: '',
-    });
+    const { status, setTime, setMaxValue } = props;
 
-    const theme = createTheme({
-        palette: {
-            primary: { main: '#344E41' },
-        },
-    });
-
-    const validateMinutes = (value: number | string) => {
-        if (value > 720) return setTime({ ...time, minutes: 720 });
-        if (value === 0) return setTime({ ...time, minutes: '' });
-    };
-
-    const validateSeconds = (value: number | string) => {
-        if (value > 3600) return setTime({ ...time, seconds: 3600 });
-        if (value === 0) return setTime({ ...time, seconds: '' });
-    };
-
-    const setMinutes = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setTime({ ...time, minutes: Number(e.currentTarget.value) });
-    };
-
-    const setSeconds = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setTime({ ...time, seconds: Number(e.currentTarget.value) });
-    };
-
-    useMemo(() => {
-        validateMinutes(time.minutes);
-        validateSeconds(time.seconds);
-    }, [time]);
+    const [seconds, setSeconds] = useState<number>(0);
+    const [minutes, setMinutes] = useState<number>(0);
+    const [slider, setSlider] = useState<number | number[]>(0);
 
     const marks = [
-        { value: 0, label: 'min' },
+        { value: 0, label: 'm' },
         { value: 600, label: '10' },
         { value: 1200, label: '20' },
         { value: 1800, label: '30' },
@@ -54,37 +26,93 @@ const TimeInput: React.FC<ITimeInputProps> = props => {
         { value: 3600, label: '60' },
     ];
 
+    const formatValue = (value: number) => {
+        return value.toString().padStart(2, '0');
+    };
+
+    const handleMinutesChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        const minutes = Number(e.currentTarget.value);
+        setMinutes(minutes);
+        setSlider(minutes * 60);
+    }, []);
+
+    const handleSecondsChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+        const seconds = Number(e.currentTarget.value);
+        setSeconds(seconds);
+    }, []);
+
+    const handleSliderChange = useCallback((e: Event, value: number | number[]) => {
+        setSlider(Number(value));
+        setMinutes(Math.floor(Number(value) / 60));
+        setSeconds((Number(value) as number) % 60);
+    }, []);
+
+    useMemo(() => {
+        if (seconds > 59) {
+            setMinutes(prev => prev + 1);
+            setSeconds(0);
+        }
+        if (seconds < 0) {
+            setMinutes(prev => prev - 1);
+            setSeconds(59);
+        }
+        if (minutes < 0) {
+            setMinutes(0);
+        }
+        if (minutes > 720) {
+            setMinutes(720);
+        }
+        setSlider(minutes * 60 + seconds);
+    }, [seconds, minutes]);
+
+    useEffect(() => {
+        if (status === 'initial') {
+            setTime(minutes * 60 + seconds);
+            setMaxValue(minutes * 60 + seconds);
+        }
+    }, [minutes, seconds, setMaxValue, setTime, status]);
+
+    const isControlsDisabled = status === 'running' || status === 'paused';
+
     return (
         <>
-            <SInputsWrapper>
-                <SInput
-                    value={time.minutes}
-                    max={720}
-                    size={2}
-                    onChange={setMinutes}
-                    type='number'
-                    placeholder='Минуты'
-                />
-                <SInput value={time.seconds} size={1} onChange={setSeconds} type='number' placeholder='Секунды' />
-            </SInputsWrapper>
-            <ThemeProvider theme={theme}>
-                <Slider
-                    name='slider'
-                    onChange={(e, value) => setTime({ ...time, seconds: Number(value) })}
-                    value={time.seconds as number}
-                    valueLabelDisplay='auto'
-                    step={15}
-                    max={3600}
-                    marks={marks}
-                    color='primary'
-                    onChangeCommitted={(e, value) => {
-                        setTime({ ...time, minutes: Math.floor(Number(value) / 60) });
-                    }}
-                    valueLabelFormat={value => String(value) + 's'}
-                />
-            </ThemeProvider>
+            <STimeInputsWrapper>
+                <SInputContainer>
+                    <span>Минуты:</span>
+                    <SInput
+                        value={formatValue(minutes)}
+                        size={2}
+                        type='number'
+                        placeholder='Минуты'
+                        onChange={handleMinutesChange}
+                        disabled={isControlsDisabled}
+                    />
+                </SInputContainer>
+                <SInputContainer>
+                    <span>Секунды:</span>
+                    <SInput
+                        value={formatValue(seconds)}
+                        size={1}
+                        type='number'
+                        placeholder='Секунды'
+                        onChange={handleSecondsChange}
+                        disabled={isControlsDisabled}
+                    />
+                </SInputContainer>
+            </STimeInputsWrapper>
+            <Slider
+                value={slider}
+                onChange={handleSliderChange}
+                valueLabelDisplay='auto'
+                step={15}
+                max={3600}
+                marks={marks}
+                color='primary'
+                disabled={isControlsDisabled}
+                valueLabelFormat={value => String(value) + 's'}
+            />
         </>
     );
 };
 
-export default TimeInput;
+export default memo(TimeInput);

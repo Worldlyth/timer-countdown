@@ -3,13 +3,21 @@ import Timer from './components/Timer/index';
 import { SApp } from './assets/styles/app.styles';
 import styled from 'styled-components';
 import Countdown from './components/Countdown';
+import { createTheme, ThemeProvider } from '@mui/material';
 
 function App() {
+    const theme = createTheme({
+        palette: {
+            primary: { main: '#344E41' },
+        },
+    });
     return (
         <SApp>
             <Container>
-                <Timer />
-                <Countdown />
+                <ThemeProvider theme={theme}>
+                    <Timer />
+                    <Countdown />
+                </ThemeProvider>
             </Container>
         </SApp>
     );
