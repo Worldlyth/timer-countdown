@@ -4,8 +4,8 @@ import { Slider } from '@mui/material';
 import { StatusType } from '..';
 
 interface ITimeInputProps {
-    setTime: (value: number) => void;
     status: StatusType;
+    setTime: (value: number) => void;
     setMaxValue: (value: number) => void;
 }
 
@@ -15,16 +15,6 @@ const TimeInput: React.FC<ITimeInputProps> = props => {
     const [seconds, setSeconds] = useState<number>(0);
     const [minutes, setMinutes] = useState<number>(0);
     const [slider, setSlider] = useState<number | number[]>(0);
-
-    const marks = [
-        { value: 0, label: 'm' },
-        { value: 600, label: '10' },
-        { value: 1200, label: '20' },
-        { value: 1800, label: '30' },
-        { value: 2400, label: '40' },
-        { value: 3000, label: '50' },
-        { value: 3600, label: '60' },
-    ];
 
     const formatValue = (value: number) => {
         return value.toString().padStart(2, '0');
@@ -126,3 +116,13 @@ const TimeInput: React.FC<ITimeInputProps> = props => {
 };
 
 export default memo(TimeInput);
+
+const marks = [
+    { value: 0, label: 'm' },
+    { value: 600, label: '10' },
+    { value: 1200, label: '20' },
+    { value: 1800, label: '30' },
+    { value: 2400, label: '40' },
+    { value: 3000, label: '50' },
+    { value: 3600, label: '60' },
+];

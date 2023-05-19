@@ -19,11 +19,26 @@ const Countdown: React.FC<ICountdownProps> = props => {
     const [time, setTime] = useState<number>(0);
     const [progress, setProgress] = useState<number>(0);
     const [maxValue, setMaxValue] = useState<number>(0);
-
     const [countdownState, setCountdownState] = useState<ICountdownState>({
         status: 'initial',
         action: 'Запустить',
     });
+
+    const isResetDisabled = countdownState.status === 'initial';
+
+    const handleSetMaxValue = (value: number) => {
+        setMaxValue(value);
+    };
+
+    const handleSetTime = (value: number) => {
+        setTime(value);
+    };
+
+    const reset = () => {
+        setCountdownState({ ...countdownState, action: 'Запустить', status: 'initial' });
+        setProgress(0);
+        setTime(maxValue);
+    };
 
     const changeAction = useCallback(() => {
         switch (countdownState.action) {
@@ -54,23 +69,7 @@ const Countdown: React.FC<ICountdownProps> = props => {
         }
     }, [time, countdownState, setTime, progress]);
 
-    const handleSetTime = (value: number) => {
-        setTime(value);
-    };
-
-    const reset = () => {
-        setCountdownState({ ...countdownState, action: 'Запустить', status: 'initial' });
-        setProgress(0);
-        setTime(maxValue);
-    };
-
-    const isResetDisabled = countdownState.status === 'initial';
-
-    const handleSetMaxValue = (value: number) => {
-        setMaxValue(value);
-    };
-
-    const percentage = () => {
+    const getPercents = () => {
         const percents = Math.floor((progress / maxValue) * 100);
         if (!percents) return 0;
         if (percents > 100) return 100;
@@ -81,7 +80,7 @@ const Countdown: React.FC<ICountdownProps> = props => {
         <SCountdown>
             <SHeading>Countdown</SHeading>
             <TimeInput setTime={handleSetTime} status={countdownState.status} setMaxValue={handleSetMaxValue} />
-            <TimeDisplay time={time} status={countdownState.status} progress={percentage()} />
+            <TimeDisplay time={time} progress={getPercents()} />
             <Button color='inherit' variant='contained' onClick={changeAction}>
                 {countdownState.action}
             </Button>

@@ -1,11 +1,9 @@
 import React, { memo } from 'react';
 import { Box, LinearProgress, Typography } from '@mui/material';
-import { StatusType } from '..';
 import { STime } from '../../../assets/styles/app.styles';
 
 interface ITimeDisplayProps {
     time: number;
-    status: StatusType;
     progress: number;
 }
 
