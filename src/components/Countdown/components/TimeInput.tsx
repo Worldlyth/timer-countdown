@@ -1,4 +1,4 @@
-import React, { memo, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { memo, useCallback, useMemo, useState } from 'react';
 import { SInput, STimeInputsWrapper, SInputContainer } from '../../../assets/styles/Countdown';
 import { Slider } from '@mui/material';
 import { StatusType } from '..';
@@ -30,22 +30,37 @@ const TimeInput: React.FC<ITimeInputProps> = props => {
         return value.toString().padStart(2, '0');
     };
 
-    const handleMinutesChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        const minutes = Number(e.currentTarget.value);
-        setMinutes(minutes);
-        setSlider(minutes * 60);
-    }, []);
+    const handleMinutesChange = useCallback(
+        (e: React.ChangeEvent<HTMLInputElement>) => {
+            const minutes = Number(e.currentTarget.value);
+            setMinutes(minutes);
+            setSlider(minutes * 60);
+            setTime(minutes * 60 + seconds);
+            setMaxValue(minutes * 60 + seconds);
+        },
+        [seconds, setMaxValue, setTime]
+    );
 
-    const handleSecondsChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-        const seconds = Number(e.currentTarget.value);
-        setSeconds(seconds);
-    }, []);
+    const handleSecondsChange = useCallback(
+        (e: React.ChangeEvent<HTMLInputElement>) => {
+            const seconds = Number(e.currentTarget.value);
+            setSeconds(seconds);
+            setTime(minutes * 60 + seconds);
+            setMaxValue(minutes * 60 + seconds);
+        },
+        [minutes, setMaxValue, setTime]
+    );
 
-    const handleSliderChange = useCallback((e: Event, value: number | number[]) => {
-        setSlider(Number(value));
-        setMinutes(Math.floor(Number(value) / 60));
-        setSeconds((Number(value) as number) % 60);
-    }, []);
+    const handleSliderChange = useCallback(
+        (e: Event, value: number | number[]) => {
+            setSlider(Number(value));
+            setMinutes(Math.floor(Number(value) / 60));
+            setSeconds((Number(value) as number) % 60);
+            setTime(minutes * 60 + seconds);
+            setMaxValue(minutes * 60 + seconds);
+        },
+        [minutes, seconds, setMaxValue, setTime]
+    );
 
     useMemo(() => {
         if (seconds > 59) {
@@ -61,16 +76,11 @@ const TimeInput: React.FC<ITimeInputProps> = props => {
         }
         if (minutes > 720) {
             setMinutes(720);
-        }
-        setSlider(minutes * 60 + seconds);
-    }, [seconds, minutes]);
-
-    useEffect(() => {
-        if (status === 'initial') {
-            setTime(minutes * 60 + seconds);
+            setTime(720 * 60 + seconds);
             setMaxValue(minutes * 60 + seconds);
         }
-    }, [minutes, seconds, setMaxValue, setTime, status]);
+        setSlider(minutes * 60 + seconds);
+    }, [seconds, minutes, setTime, setMaxValue]);
 
     const isControlsDisabled = status === 'running' || status === 'paused';
 

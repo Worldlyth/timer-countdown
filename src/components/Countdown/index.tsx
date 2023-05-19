@@ -37,19 +37,20 @@ const Countdown: React.FC<ICountdownProps> = props => {
     }, [countdownState]);
 
     useEffect(() => {
-        const start = () => {
-            const timeout = setTimeout(() => {
+        if (countdownState.status === 'running' && time > 0) {
+            const interval = setInterval(() => {
                 setTime(() => time - 1);
                 setProgress(() => progress + 1);
             }, 1000);
-            return () => clearTimeout(timeout);
-        };
-
-        if (countdownState.status === 'running') {
-            start();
+            return () => clearInterval(interval);
         }
-        if (time < 0) {
+        if (time === 0 && countdownState.status === 'running') {
             setCountdownState({ ...countdownState, status: 'initial', action: 'Запустить' });
+            setProgress(0);
+            const alarm = new Audio(
+                'https://cdn.videvo.net/videvo_files/audio/premium/audio0063/watermarked/ClockAlarm%20TL02_40_1_preview.mp3'
+            );
+            alarm.play();
         }
     }, [time, countdownState, setTime, progress]);
 
@@ -59,6 +60,8 @@ const Countdown: React.FC<ICountdownProps> = props => {
 
     const reset = () => {
         setCountdownState({ ...countdownState, action: 'Запустить', status: 'initial' });
+        setProgress(0);
+        setTime(maxValue);
     };
 
     const isResetDisabled = countdownState.status === 'initial';
