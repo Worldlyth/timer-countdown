@@ -4,8 +4,8 @@ import { Slider } from '@mui/material';
 import { StatusType } from '..';
 
 interface ITimeInputProps {
-    status: StatusType;
     setTime: (value: number) => void;
+    status: StatusType;
     setMaxValue: (value: number) => void;
 }
 
@@ -35,6 +35,7 @@ const TimeInput: React.FC<ITimeInputProps> = props => {
         (e: React.ChangeEvent<HTMLInputElement>) => {
             const seconds = Number(e.currentTarget.value);
             setSeconds(seconds);
+            setSlider(seconds + minutes * 60);
             setTime(minutes * 60 + seconds);
             setMaxValue(minutes * 60 + seconds);
         },
@@ -46,11 +47,14 @@ const TimeInput: React.FC<ITimeInputProps> = props => {
             setSlider(Number(value));
             setMinutes(Math.floor(Number(value) / 60));
             setSeconds((Number(value) as number) % 60);
-            setTime(minutes * 60 + seconds);
-            setMaxValue(minutes * 60 + seconds);
         },
-        [minutes, seconds, setMaxValue, setTime]
+        [minutes, seconds, setMaxValue]
     );
+
+    const handleOnChangeCommited = () => {
+        setMaxValue(minutes * 60 + seconds);
+        setTime(seconds + minutes * 60);
+    };
 
     useMemo(() => {
         if (seconds > 59) {
@@ -110,6 +114,7 @@ const TimeInput: React.FC<ITimeInputProps> = props => {
                 color='primary'
                 disabled={isControlsDisabled}
                 valueLabelFormat={value => String(value) + 's'}
+                onChangeCommitted={handleOnChangeCommited}
             />
         </>
     );
