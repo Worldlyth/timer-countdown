@@ -42,14 +42,11 @@ const TimeInput: React.FC<ITimeInputProps> = props => {
         [minutes, setMaxValue, setTime]
     );
 
-    const handleSliderChange = useCallback(
-        (e: Event, value: number | number[]) => {
-            setSlider(Number(value));
-            setMinutes(Math.floor(Number(value) / 60));
-            setSeconds((Number(value) as number) % 60);
-        },
-        [minutes, seconds, setMaxValue]
-    );
+    const handleSliderChange = useCallback((e: Event, value: number | number[]) => {
+        setSlider(Number(value));
+        setMinutes(Math.floor(Number(value) / 60));
+        setSeconds((Number(value) as number) % 60);
+    }, []);
 
     const handleOnChangeCommited = () => {
         setMaxValue(minutes * 60 + seconds);
